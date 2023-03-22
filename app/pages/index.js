@@ -321,7 +321,8 @@ const App = () => {
             // If the player does have enough money for the item
             else if (money >= purchaseValue){
               setPurchased([...purchased, purchase]);
-              setChoice([...choice, { test: 'You have purchased '+ purchase, bubble: 'menu'},
+              setMoney(money - purchaseValue);
+              setChoice([...choice, { text: 'You have purchased '+ purchase, bubble: 'menu'},
                 { text: 'Press 1 find clients. Press 2 to buy something. Press 3 to show your purchases', bubble: 'menu' }]);
             }
 
