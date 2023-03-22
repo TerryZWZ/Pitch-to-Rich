@@ -490,6 +490,7 @@ const App = () => {
       setChatting(false);
 
       setNPC({ name: '', description: '' });
+      setDisplayScore('');
       setRep('');
 
       setChoice([...choice, { text: 'Congratulations. Press 1 find clients. Press 2 to buy something. Press 3 to show your purchases', bubble: 'menu' }]);
@@ -498,7 +499,7 @@ const App = () => {
       setStep(4);
       setScore(0);
     }
-    
+
     else if (score <= 0 && chatting == true) {
       setChoiceInstruct(false);
       setChoiceHistory([]);
@@ -508,7 +509,7 @@ const App = () => {
       setChatting(false);
 
       setNPC({ name: '', description: '' });
-      setDisplayScore('Score: ' + scoreAdd);
+      setDisplayScore('');
       setRep('');
 
       setChoice([...choice, { text: 'Unforunate. Press 1 find clients. Press 2 to buy something. Press 3 to show your purchases', bubble: 'menu' }]);
