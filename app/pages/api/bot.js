@@ -2,38 +2,24 @@ const { Configuration, OpenAIApi } = require('openai');
 const fs = require('fs');
 
 const configuration = new Configuration({
-  apiKey: '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',
+  apiKey: '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',
 });
 const openai = new OpenAIApi(configuration);
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
-      const { chatHistory } = req.body;
       const { prompt } = req.body;
 
-      if(chatHistory != undefined){
-        const completion = await openai.createCompletion({
-          model: 'text-davinci-003',
-          prompt: chatHistory,
-          max_tokens: 250,
-          temperature: 0.7,
-        });
+      const completion = await openai.createChatCompletion({
+        model: 'gpt-3.5-turbo',
+        messages: prompt,
+        max_tokens: 250,
+        temperature: 0.7,
+      });
 
-        console.log(completion.data.choices[0].text);
-        res.status(200).json({ message: completion.data.choices[0].text });
-      }
-      else if(prompt != undefined){
-        const completion = await openai.createCompletion({
-          model: 'text-davinci-003',
-          prompt: prompt,
-          max_tokens: 250,
-          temperature: 0.7,
-        });
-
-        console.log(completion.data.choices[0].text);
-        res.status(200).json({ message: completion.data.choices[0].text });
-      }
+      console.log(completion.data.choices[0].message.content);
+      res.status(200).json({ message: completion.data.choices[0].message });
     
     } catch (error) {
       console.error(error);

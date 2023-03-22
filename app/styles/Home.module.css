@@ -213,9 +213,16 @@
 }
 
 .descriptionCharacter {
-  font-size: 35px;
+  font-size: 30px;
   font-weight: bolder;
   color: #413a2e;
+  padding: 20px;
+}
+
+.descriptionScore {
+  font-size: 35px;
+  font-weight: bolder;
+  color: #00806a;
   margin-left: 20px;
 }
 

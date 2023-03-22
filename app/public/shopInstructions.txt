@@ -18,7 +18,7 @@ etc.
 Remember to give me 5 random items. When I say 'START SHOP', you will give me these 5 items.
 I will tell you which number x item I buy, when I tell you, respond in the following format:
 
-{ item } - { price }
+You have bought { item } - { price }
 
 For example:
 

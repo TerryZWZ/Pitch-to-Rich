@@ -8,28 +8,31 @@ const App = () => {
   const [NPC, setNPC] = useState({name: '', description: ''});
   const [product, setProduct] = useState({ name: '', price: 0});
   const [money, setMoney] = useState(0);
-  const [hype, setHype] = useState(0);
   const [customers, setCustomers] = useState(0);
   const [score, setScore] = useState(0);
+  const [hype, setHype] = useState(0);
+  const [displayScore, setDisplayScore] = useState('');
+  const [rep, setRep] = useState('');
   const [purchased, setPurchased] = useState([]);
 
   // Chat Menu Variables
   const [chat, setChat] = useState([]);
-  const [chatHistory, setChatHistory] = useState('');
+  const [chatHistory, setChatHistory] = useState([]);
   const [chatInstruction, setChatInstruct] = useState(false);
-  const [chatDisabled, setChatDisabled] = useState(false);
+  const [chatDisabled, setChatDisabled] = useState(true);
 
   // Choice Menu Variables
   const [choice, setChoice] = useState([{ text: 'What product do you want to sell?', bubble: 'menu' }]);
-  const [choiceHistory, setChoiceHistory] = useState('');
+  const [choiceHistory, setChoiceHistory] = useState([]);
   const [choiceInstruction, setChoiceInstruct] = useState(false);
   const [choiceDisabled, setChoiceDisabled] = useState(false);
   const [personFinder, setPersonFinder] = useState('');
+  
 
   // Progression Variables
-  const [hold, setHold] = useState('');
-  const [extend, setExtend] = useState(false);
   const [step, setStep] = useState(1);
+  const [hold, setHold] = useState([]);
+  const [extend, setExtend] = useState(false);
   const [pickNPC, setPickNPC] = useState(false);
   const [chatting, setChatting] = useState(false);
   const [clientList, setClientList] = useState([]);
@@ -47,7 +50,7 @@ const App = () => {
     async function readChoiceInstructions() {
       const response = await fetch('/choiceInstructions.txt');
       const text = await response.text();
-      setHold(text);
+      setHold([text]);
     }
     readChoiceInstructions();
   }, []);
@@ -80,26 +83,31 @@ const App = () => {
         const entry = event.target.value.trim();
         setChoice([...choice, { text: entry, bubble: 'user' }, { text: 'What price do you want to sell it at?', user: 'menu' }]);
         event.target.value = '';
+
         setProduct({...product, name: entry});
+
         setStep(2);
       }
       else if (step == 2) { // Presenting 5 clients to sell to
-        setChoiceInstruct(true);
         const entry = event.target.value.trim();
         setChoice([...choice, { text: entry, bubble: 'user' }]);
         event.target.value = '';
+
+        setChoiceInstruct(true);
         const productPrice = parseFloat(entry); 
         setProduct(prevProduct => ({ ...prevProduct, price: prevProduct.price + productPrice }));
-        setChoiceHistory(hold + product.name + ' for ' + '$' + entry + ' <end>');
-        setHold(choiceHistory + ' ' + personFinder + ' Hype: ' + hype);
+        setChoiceHistory([...choiceHistory, { role: 'user', content: hold[0] + product.name + ' for ' + '$' + entry + ' <end>' } ]);
+        setHold([...choiceHistory, { role: 'user', content: personFinder + ' Hype: ' + hype }]);
         setExtend(true);
+
         setStep(3);
       }
       else if (step == 3) { // Choosing client
-        setChoiceInstruct(true);
         const entry = event.target.value.trim();
         setChoice([...choice, { text: entry, bubble: 'user' }]);
         event.target.value = '';
+
+        setChoiceInstruct(true);
 
         // Identifying NPC
         for (let i = 0; i < clientList.length; i++) {
@@ -108,9 +116,7 @@ const App = () => {
 
           if ((clientList[i].text).includes(index)) {
             setNPC(clientList[i].text);
-
             const regex = /\[ ([^\]]+) \] (\w+) \| (.+)/;
-  
             const filterName = (clientList[i].text).match(regex); // Parsing name out of string
 
             if (filterName) {
@@ -124,70 +130,91 @@ const App = () => {
         }
 
         setPickNPC(true);
-        setChoiceHistory(choiceHistory + ' ' + entry + '<end>');
+        setChoiceHistory([...choiceHistory, { role: 'user', content: entry + '<end>' } ]);
         setChatting(true);
         setChatDisabled(false);
         setNoClient(false);
         setChoiceDisabled(true);
+
         setStep(0);
       }
       else if (step == 4) { // Prompting user after customer encounter
         setChoiceInstruct(true);
         const entry = event.target.value.trim();
         event.target.value = '';
+
         if (entry == '1') {
+          setChoiceInstruct(true);
           setChoice([...choice, { text: entry, bubble: 'user' }]);
-          setStep(6);
+          setChoiceHistory([{ role: 'user', content: 'Tell a funny joke relating to ' + product.name }]);
+          setHold([{ role: 'user', content: personFinder + ' Hype: ' + hype }])
+          setExtend(true);
+
+          setStep(3);
         }
+
         else if (entry == '2') {
+          setChoiceInstruct(true);
+          setShop(true);
           setChoice([...choice, { text: entry, bubble: 'user' }, { text: 'Here is what is for sale (Press 0 to go back)', bubble: 'menu' },]);
-          setHold(choiceHistory);
-          setChoiceHistory(shopInfo);
+          setChoiceHistory([{ role: 'user', content: shopInfo }]);
+
           setStep(5);
         }
+
         else if (entry == '3') {
+          setChoiceInstruct(true);
+
           if (purchased.length == 0) {
             setChoice([...choice, { text: entry, bubble: 'user' }, { text: 'You have nothing...', bubble: 'menu', },
               { text: 'Press 1 find clients. Press 2 to buy something. Press 3 to show your purchases', bubble: 'menu' }]);
           }
           else {
             let purchasedList = [];
+
             for (let i = 0; i < purchased.length; i++) {
               const bubble = { text: purchased[0], bubble: 'menu' };
               purchasedList.push(bubble);
             }
+
             setChoice([...choice, { text: entry, bubble: 'user' }, { text: 'Here are your items', bubble: 'menu' }, ...purchaseList,
               { text: 'Press 1 find clients. Press 2 to buy something. Press 3 to show your purchases', bubble: 'menu' }]);
           }
+
           setStep(4);
         }
         else {
-          setChoice([...choice, { text: entry, bubble: 'user' }]);
+          setChoice([...choice, { text: entry, bubble: 'user' }, { text: 'Press 1 find clients. Press 2 to buy something. Press 3 to show your purchases', bubble: 'menu' }]);
+
           setStep(4);
         }
       }
       else if (step == 5) {
-        setChoiceInstruct(true);
         const entry = event.target.value.trim();
         setChoice([...choice, { text: entry, bubble: 'user' }]);
         event.target.value = '';
-        if (entry == '0') {
-          setChoice([...choice, { text: entry, bubble: 'user' }, { text: 'Press 1 find clients. Press 2 to buy something. Press 3 to show your purchases', bubble: 'menu' }]);
+
+        if(parseInt(entry) <= 5 && parseInt(entry) >= 1) {
+          setChoiceInstruct(true);
+          setShop(true);
+          setBuy(true);
+          setChoiceHistory([...choiceHistory, { role: 'user', content: entry }]);
         }
         else {
-          setBuy(true);
-          setChoiceHistory(...choiceHistory + entry);
+          setChoice([...choice, { text: entry, bubble: 'user' }, { text: 'Press 1 find clients. Press 2 to buy something. Press 3 to show your purchases', bubble: 'menu' }]);
         }
+
         setStep(4);
       }
       else if (step == 6) { // Presenting 5 clients after first time
-        setChoiceInstruct(true);
         const entry = event.target.value.trim();
         setChoice([...choice, { text: entry, bubble: 'user' }]);
         event.target.value = '';
-        setChoiceHistory(hold + product.name + ' for ' + '$' + product.price + ' <end>');
-        setHold(choiceHistory + ' ' + personFinder);
+
+        setChoiceInstruct(true);
+        setChoiceHistory([{ role: 'user', content: personFinder + ' Hype: ' + hype }]);
         setExtend(true);
+
         setStep(3);
       }
     }
@@ -222,30 +249,31 @@ const App = () => {
     if (choiceInstruction == true) {
 
       // Default Call
-      if (extend == false && pickNPC == false && shop == false) {
+      if (extend == false && pickNPC == false && shop == false && buy == false) {
         const reply = apiCall(choiceHistory);
-        console.log('default');
+
         reply.then(data => {
-          setChoiceHistory(choiceHistory + ' ' + data);
-          setChoice([...choice, { text: data, bubble: 'menu' }]);
+          setChoiceHistory([...choiceHistory, data ]);
+          setChoice([...choice, { text: data.content, bubble: 'menu' }]);
           setChoiceDisabled(false); // Renabling Chat
           setChoiceInstruct(false);
         });
       }
 
       // Client Finder Call (Step 2)
-      if (extend == true) {
+      else if (extend == true) {
         const reply = apiCall(choiceHistory);
-        console.log('extend');
         const extension = apiCall(hold);
+
         Promise.all([reply, extension]).then(data => {
           const [replyData, extensionData] = data;
-          setChoiceHistory(choiceHistory + ' ' + replyData + ' ' + hold + ' ' + extensionData);
+          setChoiceHistory([...choiceHistory, replyData, { role: 'user', content: hold[0].content }, extensionData]);
 
+          // Splitting client list into seperate bubbles
           let clients = [];
 
           for (let i = 0; i < 5; i++) {
-            clients = extensionData.split(' <stop>');
+            clients = extensionData.content.split(' <stop>');
           }
 
           const clientData = clients.slice(0, 5).map((data) => {
@@ -253,13 +281,7 @@ const App = () => {
           });
 
           setClientList(clientData);
-
-          if (replyData.includes('Error')) {
-            setChoice([...choice, { text: 'Here are 5 people', bubble: 'menu' }, ...clientData]);
-          }
-          else {
-            setChoice([...choice, { text: replyData, bubble: 'menu' }, { text: 'Here are 5 people', bubble: 'menu' }, ...clientData]);
-          }
+          setChoice([...choice, { text: replyData.content, bubble: 'menu' }, { text: 'Here are 5 people', bubble: 'menu' }, ...clientData]);
           
           setChoiceDisabled(false); // Re-enabling Chat
           setChoiceInstruct(false);
@@ -270,10 +292,9 @@ const App = () => {
       // Client Submission Call (Step 3)
       else if (pickNPC == true) {
         const reply = apiCall(choiceHistory);
-        console.log('npc');
         reply.then(data => {
-          setChoiceHistory(choiceHistory + ' ' + data);
-          setChoice([...choice, { text: data, bubble: 'menu' }]);
+          setChoiceHistory([...choiceHistory, data ]);
+          setChoice([...choice, { text: data.content, bubble: 'menu' }]);
           setChoiceDisabled(false); // Re-enabling Chat
           setChoiceInstruct(false);
           setPickNPC(false);
@@ -283,19 +304,21 @@ const App = () => {
       // Shop Call (Step 4/5)
       else if (shop == true) {
         const reply = apiCall(choiceHistory);
-        console.log('shop');
+
         reply.then(data => {
-          if (buy) {
-            setChoiceHistory(hold);
 
-            const purchase = data.replace('You have bought ', '');
-            const purchaseValue = parseInt(purchase.split('-'));
+          // Step 5
+          if (buy && data.content) {
+            const purchase = data.content.replace('You have bought ', '');
+            const purchaseValue = parseFloat(purchase.match(/\d+(\.\d+)?/));
 
-            console.log('shop2');
+            // If the player does not have enough money for the item
             if (money < purchaseValue) {
               setChoice([...choice, { text: 'Too poor for ' + purchase, bubble: 'menu' },
                 { text: 'Press 1 find clients. Press 2 to buy something. Press 3 to show your purchases', bubble: 'menu' }]);
             }
+
+            // If the player does have enough money for the item
             else if (money >= purchaseValue){
               setPurchased([...purchased, purchase]);
               setChoice([...choice, { test: 'You have purchased '+ purchase, bubble: 'menu'},
@@ -307,37 +330,40 @@ const App = () => {
             setBuy(false);
             setShop(false);
           }
-          else {
+
+          // Step 4
+          else if (data.content) {
             reply.then(data => {
               let store = [];
 
-              for (let i = 0; i < 5; i++) {
-                store = data.split(' <stop>');
+              // Splitting shop item prompt into seperate bubbles
+              for (let i = 0; i < 5 && data.content; i++) {
+                store = data.content.split(' <stop>');
               }
 
               const storeData = store.slice(0, 5).map((item) => {
                 return { text: item, bubble: 'menu' };
               });
 
-              setChoiceHistory(choiceHistory + ' ' + data);
-              setChoice([...choice, ...data]);
+              setChoiceHistory([...choiceHistory, data ]);
+              setChoice([...choice, ...storeData]);
               setChoiceDisabled(false); // Re-enabling Chat
               setChoiceInstruct(false);
               setShop(false);
             });
           }
-
-          setShop(false);
         });
       }
     }
     
     //console.log(choiceHistory);
-  }, [choiceHistory, choiceInstruction]);
+  }, [choiceHistory]);
 
   // Used to prevent looping API call by disabling choiceInstruct
   useEffect(() => {
-    setChoiceInstruct(false);
+    if (choiceDisabled == false) {
+      setChoiceInstruct(false);
+    }
   }, [choiceDisabled]);
 
 /* ------------------------------------------------------------------------------------------ */
@@ -352,9 +378,8 @@ const App = () => {
       const response = await fetch('/chatInstructions.txt');
       const text = await response.text();
       const start = text + 'Your name is ' + NPC.name + '. You are a: ' + NPC.description + '. ';
-      const cmd = start + 'BECOME YOURSELF'
     
-      setChatHistory(cmd);
+      setChatHistory([...chatHistory, { role: 'user', content: start } ]);
     }
 
     if (chatting == true){
@@ -366,91 +391,131 @@ const App = () => {
   // When chat menu is entered
   const chatSubmit = async (event) => {
     if (event.key === 'Enter' && event.target.value.trim() !== '' && chatDisabled == false) {
-      setChatInstruct(true);
       const entry = event.target.value.trim();
+      event.target.value = '';
+
+      setChatInstruct(true);
       setPlayer([...player, entry]);
       setChat([...chat, { text: entry, bubble: 'user' }]);
-      event.target.value = '';
-      setChatHistory(chatHistory + entry + '<end>\n\n');
+      setChatHistory([...chatHistory, { role: 'user', content: entry + '<end>' } ]);
     }
   };
 
   // When Chat History is updated with user input, an OpenAI API call occurs
   useEffect(() => {
-    const apiCall = async () => {
-      if (chatInstruction == true) {
-        setChatDisabled(true);
-        try {
-          const res = await fetch('/api/bot', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ chatHistory }),
-          });
 
-          const data = await res.json();
+    // Actual API Call
+    const apiCall = async (prompt) => {
+      setChatDisabled(true); // Disable menu chat during API call
 
-          setChat([...chat, { text: data.message, bubble: 'menu' }]);
-          setChatHistory(chatHistory + data.message + '\n\n');
+      try {
+        const res = await fetch('/api/bot', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ prompt }),
+        });
 
-          const scoreRegex = /<score\s+(\d+)>/;
-          const hypeRegex = /<hype\s+(\d+)>/;
-          const scoreMatch = (data.message).match(scoreRegex);
-          const hypeMatch = (data.message).match(hypeRegex);
-          const scoreAdd = scoreMatch ? parseInt(scoreMatch[1]) : null;
-          const hypeAdd = hypeMatch ? parseInt(hypeMatch[1]) : null; 
+        const data = await res.json(); // API Return Data
 
-          setScore(scoreAdd);
-          setSaveHype(hypeAdd);
-
-          setChatDisabled(false);
-        }
-        catch (error) {
-          console.error(error);
-        }
+        return data.message
+      }
+      catch (error) {
+        console.error(error);
       }
     }
-    apiCall();
+
+    // chatInstruction is used to prevent looping
+    if (chatInstruction == true) {
+      const reply = apiCall(chatHistory);
+
+      reply.then(data => {
+        const scoreRegex = /<score\s+(\d+)>/;
+        const hypeRegex = /<hype\s+(\d+)>/;
+        const scoreMatch = (data.content).match(scoreRegex);
+        const hypeMatch = (data.content).match(hypeRegex);
+        const scoreAdd = scoreMatch ? parseInt(scoreMatch[1]) : null;
+        const hypeAdd = hypeMatch ? parseInt(hypeMatch[1]) : null;
+        const message = data.content.replace(/<score\s\d+>|<hype\s\d+>/g, '');
+
+        setDisplayScore('Score: ' + scoreAdd);
+        setRep('Rep: ' + hypeAdd);
+        setSaveHype(hypeAdd);
+        setScore(scoreAdd);
+
+        setChatHistory([...chatHistory, data ]);
+        setChat([...chat, { text: message, bubble: 'menu' }]);
+
+        setChatDisabled(false); // Renabling Chat
+        setChatInstruct(false);
+      });
+    }
+    
+    //console.log(chatHistory);
   }, [chatHistory, chatInstruction]);
 
   // Used to prevent looping API call by disabling chatInstruct
   useEffect(() => {
     if (score >= 100) {
-      setChat([...chat, { text: 'You earned a customer!', bubble: 'user' }]);
-      setChatHistory('');
+      setChoiceInstruct(false);
+      setChoiceHistory([]); // Emptying choice history for next round
+
+      // Checking if the player scammed the customer
+      let scam = true;
+
+      for (let i = 0; i < choiceHistory.length; i++) {
+        if (choiceHistory[i].content.includes(product.name.toLowerCase())){
+          scam = false;
+        }
+      }
+
+      if (scam){
+        setChat([...chat, { text: 'You scammed a customer?', bubble: 'user' }]);
+
+        setMoney(money + product.price);
+        setHype(hype - saveHype);
+        setCustomers(customers + 1);
+      }
+      else {
+        setChat([...chat, { text: 'You earned a customer!', bubble: 'user' }]);
+
+        setMoney(money + product.price);
+        setHype(hype + saveHype);
+        setCustomers(customers + 1);
+      }
+
       setChatInstruct(false);
       setChatDisabled(true);
       setChatting(false);
 
       setNPC({ name: '', description: '' });
-
-      setMoney(money + product.price);
-      setHype(hype + saveHype);
-      setCustomers(customers + 1);
+      setRep('');
 
       setChoice([...choice, { text: 'Congratulations. Press 1 find clients. Press 2 to buy something. Press 3 to show your purchases', bubble: 'menu' }]);
       setChoiceDisabled(false);
-      setChoiceHistory('');
 
-      setShop(true);
       setStep(4);
+      setScore(0);
     }
-    else if (score < 0) {
+    
+    else if (score <= 0 && chatting == true) {
+      setChoiceInstruct(false);
+      setChoiceHistory([]);
+
       setChat([...chat, { text: 'You lost a customer...', bubble: 'user' }]);
-      setChatHistory('');
-      setChatInstruct(false);
       setChatDisabled(true);
-      setChoiceDisabled(false);
+      setChatting(false);
 
       setNPC({ name: '', description: '' });
+      setDisplayScore('Score: ' + scoreAdd);
+      setRep('');
 
       setChoice([...choice, { text: 'Unforunate. Press 1 find clients. Press 2 to buy something. Press 3 to show your purchases', bubble: 'menu' }]);
       setChoiceDisabled(false);
-      setChoiceHistory('');
 
-      setShop(true);
       setStep(4);
+      setScore(0);
     }
   }, [score]);
 
@@ -480,6 +545,10 @@ const App = () => {
             <div className = {styles.characterContainer}>
               <div>
                 <div className={styles.nameCharacter}>{NPC.name}</div>
+                <br></br>
+                <div className={styles.descriptionScore}>{displayScore}</div>
+                <br></br>
+                <div className={styles.descriptionScore}>{rep}</div>
                 <br></br>
                 <div className={styles.descriptionCharacter}>{NPC.description}</div>
               </div>

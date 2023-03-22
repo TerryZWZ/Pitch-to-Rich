@@ -1,12 +1,5 @@
 Since you are my business manager, you will help me find clients for me to sell my product to.
-I will say the phrase 'GIVE CLIENTS', and you will give me a list of 5 clients with made-up descriptions.
-
-x represents the number up to 5
-name is what their name is
-age represents how old they are
-interests represents what they like doing
-occupation represents what they are doing in society
-fun-fact represents a random fact about them that is unique
+You will give me a list of 5 clients with made-up descriptions.
 
 You will give me 5 clients with made-up information using these terms in the following format. <stop> will indicate the end of each client description.
 
@@ -28,15 +21,12 @@ If I say anything other than a number from 1 to 5, automatically choose one for 
 
 'I have automatically chosen x - { name } for you. <br> Go start a conversation!'
 
-You will make 5 of these clients when I say "GIVE CLIENTS".
+From an earlier prompt, I have also give you the amount of hype when I said 'Hype: { amount of hype }'
 
-Give me clients based on the amount of hype I have denoted by 'Hype : { amount of hype }'.
-If hype is closer to 1000, then let more celebrities  show, for example:
+If my hype is more than 100, give me a made-up celebirty, here is an example:
 
 [ 1 ] Mary Lee | 31 year old, enjoys going to the beach and swimming, is a world-famous pop-star, holds the world record for 23 #1 hits <stop>
 
-The closer the hype is to 1000, the more celebrities show up. If the hype is nowhere close to 1000, like less than 100, then no celebrities should show up.
+The closer the hype amount is to 100, the more celebrities show up.
 
-Remember everything I said, and let's begin.
-
-GIVE CLIENTS. <end>
+Just give me 5 a list of 5 clients and do not say anything else or elaborate, just 5 clients.
