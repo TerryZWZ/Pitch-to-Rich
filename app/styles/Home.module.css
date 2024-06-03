@@ -1,0 +1,235 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.promptContainer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+  z-index: 2;
+}
+
+.prompt {
+  width: 850px;
+  height: 40px;
+  border: none;
+  border-radius: 15px;
+  padding: 10px;
+  background-color: #222D54;
+  font-size: 35px;
+  font-weight: bolder;
+  color: white;
+  text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);
+  outline: none;
+  box-shadow: inset 0 0 10px #000000;
+}
+
+.chatContainer {
+  top: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.chat {
+  transform: translateY(-5%);
+  height: 850px;
+  width: 850px;
+  background-color: #ffffff;
+  border-radius: 15px;
+  overflow-y: scroll;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.bubble {
+  display: inline-block;
+  margin: 20px;
+  padding: 15px;
+  font-size: 30px;
+  font-weight: bolder;
+  color: white;
+  border-radius: 25px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+.loadingIndicator {
+  /* display: flex; */
+  padding-top: 10px;
+  flex-direction: column;
+}
+
+.dot {
+  margin-left: -25px;
+  width: 10px;
+  height: 10px;
+  background-color: #FF8787;
+  border-radius: 50%;
+  margin-bottom: 5px;
+  animation: move 1s ease-in-out infinite;
+  animation: dot-animation 2s linear infinite;
+}
+
+.dot:nth-child(1) {
+    animation-delay: 0.5s;
+  }
+  
+  .dot:nth-child(2) {
+    animation-delay: 1s;
+  }
+  
+  .dot:nth-child(3) {
+    animation-delay: 1.5s;
+  }
+  
+  @keyframes dot-animation {
+    0% {
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+.choiceContainer {
+  transform: translateY(-5%);
+  margin-left: 50px;
+}
+
+.choiceMenu {
+  height: 770px;
+  width: 450px;
+  background-color: #92bbf8;
+  border-radius: 15px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  overflow-y: scroll;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.choicePrompt {
+  width: 430px;
+  height: 40px;
+  margin-top: 20px;
+  border: none;
+  border-radius: 15px;
+  padding: 10px;
+  background-color: #92bbf8;
+  font-size: 35px;
+  font-weight: bolder;
+  color: #222D54;
+  text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);
+  outline: none;
+  box-shadow: inset 0 0 10px #000000;
+}
+
+.choiceBubble {
+  display: inline-block;
+  margin: 10px;
+  padding: 10px;
+  font-size: 15px;
+  font-weight: bolder;
+  color: #222D54;
+  border-radius: 25px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+.choicePromptContainer {
+  display: flex;
+  align-items: center;
+}
+
+.infoMenu {
+  transform: translateY(-4%);
+  margin-right: 50px;
+}
+
+.progressionInfo {
+  height: 280px;
+  width: 450px;
+  margin-bottom: 20px;
+  background-color: #fae1b2;
+  border-radius: 15px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.productContainer {
+  padding-top: 20px;
+  margin-left: 20px;
+}
+
+.product {
+  font-size: 30px;
+  color: #542222;
+  font-weight: bolder;
+}
+
+.scoreContainer {
+  padding-bottom: 20px;
+  margin-left: 20px;
+}
+
+.score {
+  font-size: 30px;
+  color: #222D54;
+  font-weight: bolder;
+}
+
+.characterInfo {
+  height: 550px;
+  width: 450px;
+  background-color: #b1cfb7;
+  border-radius: 15px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+.characterContainer {
+  margin-top: 30px;
+}
+
+.nameCharacter {
+  font-size: 80px;
+  font-weight: bolder;
+  color: #2F4639;
+  margin-left: 20px;
+}
+
+.descriptionCharacter {
+  font-size: 30px;
+  font-weight: bolder;
+  color: #413a2e;
+  padding: 20px;
+}
+
+.descriptionScore {
+  font-size: 35px;
+  font-weight: bolder;
+  color: #00806a;
+  margin-left: 20px;
+}
+
+.noClient {
+  font-size: 50px;
+  font-weight: bolder;
+  color: #412e2e;
+  margin-top: 100px;
+  margin-left: 25px;
+}

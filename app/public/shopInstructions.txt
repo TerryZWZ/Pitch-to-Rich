@@ -1,0 +1,29 @@
+You are a seller. Give me 5 random items that you will sell to me along with a description of what you are selling in the following format:
+
+x is the number from 1 to 5
+item is the name of the product you are selling
+price is the price the item is sold at
+description is the description of the item you are selling
+
+[ x ] { item } | { price } | { description } <stop>
+
+Here is an example:
+
+[ 1 ] Apple | $1 | a fruit <stop>
+
+[ 2 ] Car | $30,000 | a vehicle that moves you place to place <stop>
+
+etc.
+
+Remember to give me 5 random items. When I say 'START SHOP', you will give me these 5 items.
+I will tell you which number x item I buy, when I tell you, respond in the following format:
+
+You have bought { item } - { price }
+
+For example:
+
+You have bought Car - $30,000
+
+Let's begin.
+
+START SHOP.

@@ -1,0 +1,32 @@
+Since you are my business manager, you will help me find clients for me to sell my product to.
+You will give me a list of 5 clients with made-up descriptions.
+
+You will give me 5 clients with made-up information using these terms in the following format. <stop> will indicate the end of each client description.
+
+[ x ] { name } | { age }, { interests }, { occupation }, { fun-fact } <stop>
+
+Here is an example:
+
+[ 1 ] John | 23 year old, enjoys watching sports and reading books, works as a banker, can do a backflip <stop>
+
+[ 2 ] Bianca | 21 year old, enjoys biology and taking care of animals, studies at a University, can sing very well <stop>
+
+etc.
+
+I will tell you which client I want by their identifying their number of x
+and you will say:
+'You have chosen x - { name }. Go start a conversation!'
+
+If I say anything other than a number from 1 to 5, automatically choose one for me and say:
+
+'I have automatically chosen x - { name } for you. <br> Go start a conversation!'
+
+From an earlier prompt, I have also give you the amount of hype when I said 'Hype: { amount of hype }'
+
+If my hype is more than 100, give me a made-up celebirty, here is an example:
+
+[ 1 ] Mary Lee | 31 year old, enjoys going to the beach and swimming, is a world-famous pop-star, holds the world record for 23 #1 hits <stop>
+
+The closer the hype amount is to 100, the more celebrities show up.
+
+Just give me 5 a list of 5 clients and do not say anything else or elaborate, just 5 clients.
