@@ -20,6 +20,7 @@ const App = () => {
   const [chatHistory, setChatHistory] = useState([]);
   const [chatInstruction, setChatInstruct] = useState(false);
   const [chatDisabled, setChatDisabled] = useState(true);
+  const chatRef = useRef(null);
 
   // Choice Menu Variables
   const [choice, setChoice] = useState([{ text: 'What product do you want to sell?', bubble: 'menu' }]);
@@ -27,11 +28,13 @@ const App = () => {
   const [choiceInstruction, setChoiceInstruct] = useState(false);
   const [choiceDisabled, setChoiceDisabled] = useState(false);
   const [personFinder, setPersonFinder] = useState('');
+  const choiceRef = useRef(null);
   
   // Progression Variables
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(1); // Change this to skip game menus
   const [hold, setHold] = useState([]);
   const [extend, setExtend] = useState(false);
+  const [joke, setJoke] = useState(true);
   const [pickNPC, setPickNPC] = useState(false);
   const [chatting, setChatting] = useState(false);
   const [clientList, setClientList] = useState([]);
@@ -40,6 +43,11 @@ const App = () => {
   const [shop, setShop] = useState(false);
   const [shopInfo, setShopInfo] = useState('');
   const [buy, setBuy] = useState(false);
+
+  // Settings
+  const [localLLM, setLocalLLM] = useState(false);
+  const [model, setModel] = useState('llama3-70b-8192');
+  const [outputInfo, setOutputInfo] = useState({ tokens: 0, speed: 0});
 
 /* ------------------------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------------------------ */
@@ -95,10 +103,10 @@ const App = () => {
         setChoiceInstruct(true);
         const productPrice = parseFloat(entry); 
         setProduct(prevProduct => ({ ...prevProduct, price: prevProduct.price + productPrice }));
-        setChoiceHistory([...choiceHistory, { role: 'user', content: hold[0] + product.name + ' for ' + '$' + entry + ' <end>' } ]);
+        setChoiceHistory([...choiceHistory, { role: 'user', content: hold[0] + product.name + ' for ' + '$' + entry + '? <end>' } ]);
         setHold([...choiceHistory, { role: 'user', content: personFinder + ' Hype: ' + hype }]);
         setExtend(true);
-        
+
         setStep(3);
       }
       else if (step == 3) { // Choosing client
@@ -115,8 +123,10 @@ const App = () => {
 
           if ((clientList[i].text).includes(index)) {
             setNPC(clientList[i].text);
-            const regex = /\[ ([^\]]+) \] (\w+) \| (.+)/;
+            console.log(clientList[i].text);
+            const regex = /\[\s*(\d+)\s*\]\s*([^\|]+)\|\s*(.+)/;
             const filterName = (clientList[i].text).match(regex); // Parsing name out of string
+            console.log(filterName);
 
             if (filterName) {
               const NPCname = filterName[2];
@@ -193,7 +203,7 @@ const App = () => {
         setChoice([...choice, { text: entry, bubble: 'user' }]);
         event.target.value = '';
 
-        if(parseInt(entry) <= 5 && parseInt(entry) >= 1) {
+        if (parseInt(entry) <= 5 && parseInt(entry) >= 1) {
           setChoiceInstruct(true);
           setShop(true);
           setBuy(true);
@@ -209,7 +219,6 @@ const App = () => {
         const entry = event.target.value.trim();
         setChoice([...choice, { text: entry, bubble: 'user' }]);
         event.target.value = '';
-
         setChoiceInstruct(true);
         setChoiceHistory([{ role: 'user', content: personFinder + ' Hype: ' + hype }]);
         setExtend(true);
@@ -219,7 +228,7 @@ const App = () => {
     }
   };
 
-  // When Choice History is updated with user input, an OpenAI API call occurs
+  // When Choice History is updated with user input, an API call occurs
   useEffect(() => {
 
     // Actual API Call
@@ -232,10 +241,11 @@ const App = () => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ prompt }),
+          body: JSON.stringify({ prompt, localLLM, model })
         });
 
         const data = await res.json(); // API Return Data
+        setOutputInfo({ tokens: data.tokens, speed: data.speed })
         return data.message;
       }
       catch (error) {
@@ -260,43 +270,55 @@ const App = () => {
       
       // Client Finder Call (Step 2)
       else if (extend == true) {
-        const reply = apiCall(choiceHistory);
-        const extension = apiCall(hold);
 
-        Promise.all([reply, extension]).then(data => {
-          const [replyData, extensionData] = data;
-          setChoiceHistory([...choiceHistory, replyData, { role: 'user', content: hold[0].content }, extensionData]);
+        // Initial Joke
+        if (joke == true) {
+          const reply = apiCall(choiceHistory);
 
-          // Splitting client list into seperate bubbles
-          let clients = [];
-
-          for (let i = 0; i < 5; i++) {
-            clients = extensionData.content.split(' <stop>');
-          }
-
-          const clientData = clients.slice(0, 5).map((data) => {
-            return { text: data, bubble: 'menu' };
+          reply.then(replyData => {
+            setChoiceHistory([...choiceHistory, replyData]);
+            setChoice([...choice, { text: replyData.content, bubble: 'menu' }]);
           });
 
-          setClientList(clientData);
-          setChoice([...choice, { text: replyData.content, bubble: 'menu' }, { text: 'Here are 5 people', bubble: 'menu' }, ...clientData]);
+          setJoke(false);
+        }
+
+        // Finding Clients
+        else {
+          const extension = apiCall(hold);
+
+          extension.then(extensionData => {
+            setChoiceHistory([...choiceHistory, { role: 'user', content: hold[0].content }, extensionData]);
           
-          setChoiceDisabled(false); // Re-enabling Chat
-          setChoiceInstruct(false);
-          setExtend(false);
-        });
+            // Splitting client list into seperate bubbles
+            let clients = [];
+  
+            for (let i = 0; i < 5; i++) {
+              clients = extensionData.content.split(' <stop>');
+            }
+  
+            const clientData = clients.slice(0, 5).map((data) => {
+              return { text: data, bubble: 'menu' };
+            });
+  
+            setClientList(clientData);
+            setChoice(prevChoice => [...prevChoice, { text: 'Here are 5 people', bubble: 'menu' }, ...clientData]);
+            
+            setChoiceDisabled(false); // Re-enabling Chat
+            setChoiceInstruct(false);
+            setExtend(false);
+          });
+         }
       }
       
       // Client Submission Call (Step 3)
       else if (pickNPC == true) {
-        const reply = apiCall(choiceHistory);
-        reply.then(data => {
-          setChoiceHistory([...choiceHistory, data ]);
-          setChoice([...choice, { text: data.content, bubble: 'menu' }]);
-          setChoiceDisabled(false); // Re-enabling Chat
-          setChoiceInstruct(false);
-          setPickNPC(false);
-        });
+        let prompt = { role: 'user', content: 'You have chosen ' + NPC.name + '. Go start a conversation!' };
+        setChoiceHistory([...choiceHistory, { role: 'user', content: prompt } ]);
+        setChoice([...choice, { text: prompt.content, bubble: 'menu' }]);
+        setChoiceDisabled(false); // Re-enabling Chat
+        setChoiceInstruct(false);
+        setPickNPC(false);
       }
 
       // Shop Call (Step 4/5)
@@ -355,7 +377,7 @@ const App = () => {
       }
     }
     //console.log(choiceHistory);
-  }, [choiceHistory]);
+  }, [choiceHistory, outputInfo]);
 
   // Used to prevent looping API call by disabling choiceInstruct
   useEffect(() => {
@@ -399,7 +421,7 @@ const App = () => {
     }
   };
 
-  // When Chat History is updated with user input, an OpenAI API call occurs
+  // When Chat History is updated with user input, an API call occurs
   useEffect(() => {
 
     // Actual API Call
@@ -412,11 +434,11 @@ const App = () => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ prompt }),
+          body: JSON.stringify({ prompt, localLLM, model })
         });
 
         const data = await res.json(); // API Return Data
-
+        setOutputInfo({ tokens: data.tokens, speed: data.speed })
         return data.message
       }
       catch (error) {
@@ -451,7 +473,7 @@ const App = () => {
     }
     
     //console.log(chatHistory);
-  }, [chatHistory, chatInstruction]);
+  }, [chatHistory, outputInfo, chatInstruction, localLLM, model]);
 
   // Used to prevent looping API call by disabling chatInstruct
   useEffect(() => {
@@ -518,16 +540,44 @@ const App = () => {
     }
   }, [score]);
 
-
   // Used to prevent looping API call by disabling chatInstruct
   useEffect(() => {
     setChatInstruct(false);
   }, [chatDisabled]);
 
+  const changeMethod = (event) => {
+    const selectedMethod = event.target.value;
+    setLocalLLM(selectedMethod == 'Local');
+  }
+
+  const changeModel = (event) => {
+    const selectedMethod = event.target.value;
+    setModel(selectedMethod);
+  }
+
+  // Used to autoscroll chat interfaces
+  useEffect(() => {
+    if (choiceRef.current) {
+      choiceRef.current.scrollTop = choiceRef.current.scrollHeight;
+    }
+  }, [choice]);
+
+  // Used to autoscroll chat interfaces
+  useEffect(() => {
+    if (chatRef.current) {
+      chatRef.current.scrollTop = chatRef.current.scrollHeight;
+    }
+  }, [chat]);
+
+  // Display
   return (
     <div className={styles.container}>
       <div className={styles.chatContainer}>
+
+        {/* Start of Left Container */}
         <div className={styles.infoMenu}>
+
+          {/* Information Card */}
           <div className={styles.progressionInfo}>
             <div className = {styles.productContainer}>
               <div className = {styles.product}>Product: {product.name}</div>
@@ -540,6 +590,8 @@ const App = () => {
               <div className = {styles.score}>Customers: {customers}</div>
             </div>
           </div>
+
+          {/* Character Card */}
           <div className={styles.characterInfo}>
             <div className = {styles.characterContainer}>
               <div>
@@ -554,9 +606,12 @@ const App = () => {
               {noClient && <div className={styles.noClient}>Find a Customer to pitch your product</div>}
             </div>
           </div>
+
         </div>
+
+        {/* Conversation Chat */}
         <div className={styles.chat}>
-          <div className={styles.playerContainer}>
+          <div className={styles.playerContainer} ref={chatRef}>
             {chat.map((message, index) => (
               <div key={index} className={styles.entry}>
                 <div style={{ backgroundColor: message.bubble == 'user' ? '#222D54' : '#FF8787' }} className={styles.bubble}>{message.text}</div>
@@ -564,14 +619,20 @@ const App = () => {
             ))}
           </div>
         </div>
+
+        {/* Interface */}
         <div className={styles.choiceContainer}>
-          <div className={styles.choiceMenu}>
+
+          {/* Interface Chat */}
+          <div className={styles.choiceMenu} ref={choiceRef}>
             {choice.map((message, index) => (
               <div key={index} className={styles.entry}>
                 <div style={{ backgroundColor: message.bubble == 'user' ? '#b1cfb7' : '#fae1b2' }} className={styles.choiceBubble}>{message.text}</div>
               </div>
             ))}
           </div>
+
+          {/* Interface Prompt */}
           <div className={styles.choicePromptContainer}>
             <div style={{ display: choiceDisabled ? 'flex' : 'none' }} className={styles.loadingIndicator}>
               <div className={styles.dot}></div>
@@ -584,8 +645,40 @@ const App = () => {
               onKeyDown={choiceSubmit}
             />
           </div>
+
+          {/* Options */}
+          <div className={styles.options}>
+            <select className={styles.methodSelect} onChange={changeMethod}>
+              <option value="Remote">Remote API</option>
+              <option value="Local">Local API</option>
+            </select>
+
+            {localLLM && (
+              <select className={styles.localSelect}  onChange={changeModel} defaultValue = "">
+                <option value="" disabled>Select a Model</option>
+                <option value="Llama-3-8B-1048k">Llama 3 8B (1048k Context)</option>
+                <option value="Phi-3-Mini-128k">Phi 3 Mini (128k Context)</option>
+              </select>
+            )}
+
+            {!localLLM && (
+              <select className={styles.localSelect}  onChange={changeModel} defaultValue = "llama3-70b-8192">
+                <option value="llama3-70b-8192">Llama 3 70B (8K Context)</option>
+                <option value="mixtral-8x7b-32768">Mixtral 8x7B (32K Context)</option>
+              </select>
+            )}
+          </div>
+
+          <div className={styles.outputInfo}>
+            <p className={styles.outputText}>Tokens: {outputInfo.tokens}</p>
+            <p className={styles.outputText}>Speed: {outputInfo.speed} t/s</p>
+          </div>
+
         </div>
+
       </div>
+
+      {/* Conversation Prompt */}
       <div className={styles.promptContainer}>
         <div style={{ display: chatDisabled && chatting && !choiceDisabled ? 'flex' : 'none' }} className={styles.loadingIndicator}>
           <div className={styles.dot}></div>

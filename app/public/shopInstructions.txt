@@ -4,6 +4,7 @@ x is the number from 1 to 5
 item is the name of the product you are selling
 price is the price the item is sold at
 description is the description of the item you are selling
+<stop> will indicate the end of each item description.
 
 [ x ] { item } | { price } | { description } <stop>
 
@@ -15,7 +16,7 @@ Here is an example:
 
 etc.
 
-Remember to give me 5 random items. When I say 'START SHOP', you will give me these 5 items.
+Remember to give me 5 random items.
 I will tell you which number x item I buy, when I tell you, respond in the following format:
 
 You have bought { item } - { price }
@@ -26,4 +27,4 @@ You have bought Car - $30,000
 
 Let's begin.
 
-START SHOP.
+Just give me 5 a list of 5 items and do not give me an introduction or elaborate.

@@ -39,18 +39,21 @@
   align-items: center;
 }
 
-.chat {
+.playerContainer {
   transform: translateY(-5%);
   height: 850px;
   width: 850px;
   background-color: #ffffff;
   border-radius: 15px;
-  overflow-y: scroll;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+  overflow: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none; 
 }
+
+.playerContainer::-webkit-scrollbar {
+  display: none;
+}
+
 
 .bubble {
   display: inline-block;
@@ -105,8 +108,19 @@
   }
 
 .choiceContainer {
-  transform: translateY(-5%);
+  transform: translateY(1%);
   margin-left: 50px;
+}
+
+.scrollablediv {
+  height: 770px;
+  width: 450px;
+  background-color: #92bbf8;
+  border-radius: 15px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  overflow: auto;
+  padding: 10px;
+  box-sizing: border-box;
 }
 
 .choiceMenu {
@@ -115,11 +129,14 @@
   background-color: #92bbf8;
   border-radius: 15px;
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-  overflow-y: scroll;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+  overflow: auto;
+  scrollbar-width: none; /* For Firefox */
+  -ms-overflow-style: none;  /* For Internet Explorer and Edge */
+}
+
+/* For WebKit browsers (Chrome, Safari, Opera) */
+.choiceMenu::-webkit-scrollbar {
+  display: none;
 }
 
 .choicePrompt {
@@ -154,8 +171,63 @@
   align-items: center;
 }
 
+.options {
+  
+}
+
+.methodSelect {
+  width: 100;
+  margin: 10px;
+  border: none;
+  border-radius: 15px;
+  padding: 10px;
+  background-color: #DEBAFD;
+  font-size: 12px;
+  font-weight: bolder;
+  color: black;
+  text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);
+  outline: none;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+.localSelect {
+  width: 300px;
+  margin: 10px;
+  border: none;
+  border-radius: 15px;
+  padding: 10px;
+  background-color: #DEBAFD;
+  font-size: 12px;
+  font-weight: bolder;
+  color: black;
+  text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);
+  outline: none;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+.outputInfo {
+  width: 100px;
+  align-self: flex-end;
+  margin: 10px;
+  border: none;
+  border-radius: 15px;
+  padding: 5px;
+  background-color: #DEBAFD;
+  font-size: 12px;
+  font-weight: bolder;
+  color: black;
+  text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.2);
+  outline: none;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+.outputText {
+  font-size: 10px;
+  font-weight: bolder;
+}
+
 .infoMenu {
-  transform: translateY(-4%);
+  transform: translateY(1%);
   margin-right: 50px;
 }
 
@@ -194,7 +266,7 @@
 }
 
 .characterInfo {
-  height: 550px;
+  height: 650px;
   width: 450px;
   background-color: #b1cfb7;
   border-radius: 15px;

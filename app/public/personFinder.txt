@@ -8,16 +8,8 @@ You will give me 5 clients with made-up information using these terms in the fol
 Here is an example:
 
 [ 1 ] John | 23 year old, enjoys watching sports and reading books, works as a banker, can do a backflip <stop>
-
 [ 2 ] Bianca | 21 year old, enjoys biology and taking care of animals, studies at a University, can sing very well <stop>
-
 etc.
-
-I will tell you which client I want by their identifying their number of x
-and you will say:
-'You have chosen x - { name }. Go start a conversation!'
-
-If I say anything other than a number from 1 to 5, automatically choose one for me and say:
 
 'I have automatically chosen x - { name } for you. <br> Go start a conversation!'
 
