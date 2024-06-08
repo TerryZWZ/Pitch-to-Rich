@@ -43,6 +43,26 @@ export default async function handler(req, res) {
         speed = Math.round(response.usage?.completion_tokens / response.usage?.total_time)
       }
 
+      // Contingency
+      if (!message && localLLM) {
+        const response = await groq.chat.completions.create({
+          model: 'llama3-8b-8192',
+          max_tokens: 1024,
+          //temperature: ,
+          //stop: ,
+          messages: prompt
+        })
+
+        message = response.choices[0]?.message;
+        tokens = response.usage?.completion_tokens;
+        speed = Math.round(response.usage?.completion_tokens / response.usage?.total_time)
+      }
+      else if (!message && !localLLM) {
+        message = { role: 'assistant', content: 'There is nobody here at the moment.' }
+        tokens = 0;
+        speed = 0;
+      }
+
       //console.log('\x1b[32m%s\x1b[0m', prompt[0].content);
       //console.log('\x1b[34m%s\x1b[0m', message);
 
