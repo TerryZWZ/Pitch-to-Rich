@@ -21,4 +21,4 @@ If my hype is more than 100, give me a made-up celebirty, here is an example:
 
 The closer the hype amount is to 100, the more celebrities show up.
 
-Just give me 5 a list of 5 clients and do not say anything else or elaborate, just 5 clients.
+Just give me 5 a list of 5 clients and do not give any introduction like "Here are 5 clients"

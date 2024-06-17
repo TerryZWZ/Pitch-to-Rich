@@ -27,4 +27,4 @@ You have bought Car - $30,000
 
 Let's begin.
 
-Just give me 5 a list of 5 items and do not give me an introduction or elaborate.
+Just give me 5 a list of 5 items in the exact format I outlined and do not give any introduction like "Here are 5 items"

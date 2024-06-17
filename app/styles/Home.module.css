@@ -75,7 +75,7 @@
     height: 10px;
     margin-bottom: 5px;
     margin-left: -25px;
-    animation: move 1s ease-in-out infinite;
+    animation: dot-animation 1s ease-in-out infinite;
     background-color: #FF8787;
     border-radius: 50%;
 }
